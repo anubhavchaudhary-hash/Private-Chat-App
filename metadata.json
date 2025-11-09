@@ -1,0 +1,7 @@
+{
+  "name": "Gemini Private Chat",
+  "description": "A private two-user chat web app using a WhatsApp-style interface, with simulated Firebase and Google Drive integration, and a Gemini AI assistant feature.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
