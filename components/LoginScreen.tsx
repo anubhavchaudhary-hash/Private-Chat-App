@@ -45,7 +45,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, allowedUsers 
                 <ChatIcon />
             </div>
           <h2 className="mt-4 text-3xl font-extrabold text-gray-900">
-            Gemini Private Chat
+            Gemini 
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Please sign in to continue

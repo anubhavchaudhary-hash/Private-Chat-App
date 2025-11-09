@@ -36,3 +36,30 @@ export const LogoutIcon: React.FC<{className?: string}> = ({ className }) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m-3-3l-3 3m0 0l3 3m-3-3h12.75" />
     </svg>
 );
+
+export const Avatar: React.FC<{userId: string; src?: string; size?: number; className?: string; alt?: string}> = ({ userId, src: srcProp, size = 40, className = '', alt }) => {
+    const [errored, setErrored] = React.useState(false);
+    // Use explicit src (profileImageUrl) when provided, otherwise fall back to public avatars path
+    const src = srcProp || `/avatars/${userId}.png`;
+
+    if (errored) {
+        // Fallback: show initials derived from userId
+        const initials = (alt || userId).toString().slice(0, 2).toUpperCase();
+        return (
+            <div className={`flex items-center justify-center bg-gray-200 text-gray-700 font-semibold rounded-full ${className}`} style={{ width: size, height: size }}>
+                {initials}
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={src}
+            alt={alt || `avatar-${userId}`}
+            width={size}
+            height={size}
+            className={`rounded-full object-cover ${className}`}
+            onError={() => setErrored(true)}
+        />
+    );
+};

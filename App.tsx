@@ -9,9 +9,14 @@ const users: Record<string, User> = {
   'DrTZw7Kv5MeGpdVbiU4lp6Kk6nF3': { 
     id: 'DrTZw7Kv5MeGpdVbiU4lp6Kk6nF3', 
     name: 'Anu',
-    profileImageUrl: 'https://i.pinimg.com/736x/de/21/59/de215903c6f6631855a508b53e83b429.jpg' 
+    // Use the local radha avatar for the other user shown in the chat header
+    profileImageUrl: '/avatars/krishna.png'
   },
-  'EJTfm5BLcuQjgiCUMsYTVu0BJXS2': { id: 'EJTfm5BLcuQjgiCUMsYTVu0BJXS2', name: 'Priya' },
+  'EJTfm5BLcuQjgiCUMsYTVu0BJXS2': { 
+    id: 'EJTfm5BLcuQjgiCUMsYTVu0BJXS2', 
+    name: 'Aas',
+    profileImageUrl: '/avatars/radha.png',
+  },
 };
 
 const App: React.FC = () => {
@@ -21,7 +26,12 @@ const App: React.FC = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser && users[firebaseUser.uid]) {
-        setCurrentUser(users[firebaseUser.uid]);
+        // If this specific test user logs in, force their profile image to the local radha avatar
+        const baseUser = users[firebaseUser.uid];
+        const overriddenUser = firebaseUser.uid === 'DrTZw7Kv5MeGpdVbiU4lp6Kk6nF3'
+          ? { ...baseUser, profileImageUrl: '/avatars/radha.png' }
+          : baseUser;
+        setCurrentUser(overriddenUser);
       } else {
         setCurrentUser(null);
       }
@@ -45,7 +55,7 @@ const App: React.FC = () => {
   if (!currentUser) {
     return <LoginScreen onLoginSuccess={(loggedInUser) => setCurrentUser(loggedInUser)} allowedUsers={users} />;
   }
-  
+
   const otherUser = currentUser.id === users['DrTZw7Kv5MeGpdVbiU4lp6Kk6nF3'].id 
     ? users['EJTfm5BLcuQjgiCUMsYTVu0BJXS2'] 
     : users['DrTZw7Kv5MeGpdVbiU4lp6Kk6nF3'];

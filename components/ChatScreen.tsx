@@ -130,8 +130,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser, otherUser, onLogou
                             key={msg.id}
                             message={msg}
                             isCurrentUser={msg.senderId === currentUser.id}
+                            otherUser={otherUser}
                         />
-                    ))
+                    )) 
                 )}
                 <div ref={messagesEndRef} />
             </main>
