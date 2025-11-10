@@ -3,6 +3,7 @@ import { ChatIcon } from './Icons';
 import { auth } from '../services/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { User } from '../types';
+import radhaKrishnaImg from '../images/radha-krishna.jpg';
 
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
@@ -38,14 +39,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, allowedUsers 
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-200">
-      <div className="w-full max-w-sm p-8 space-y-6 bg-white rounded-lg shadow-lg">
+    <div 
+      className="flex items-center justify-center h-screen bg-gray-200 relative overflow-hidden"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${radhaKrishnaImg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <div className="w-full max-w-sm p-8 space-y-6 bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl">
         <div className="text-center">
             <div className="mx-auto h-16 w-16 text-teal-500">
                 <ChatIcon />
             </div>
           <h2 className="mt-4 text-3xl font-extrabold text-gray-900">
-            Gemini 
+            Dearest 
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Please sign in to continue

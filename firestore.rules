@@ -16,13 +16,22 @@ service cloud.firestore {
 						 p.hasOnly(["DrTZw7Kv5MeGpdVbiU4lp6Kk6nF3", "EJTfm5BLcuQjgiCUMsYTVu0BJXS2"]);
 		}
 
+		// Helper: validate createdAt timestamps.
+		// Accept either serverTimestamp() (which equals request.time) or a client timestamp
+		// that is not in the future relative to request.time. This is more flexible
+		// than requiring exact equality and avoids rejects when clients can't use
+		// serverTimestamp().
+		function isValidCreatedAt(ts) {
+			return ts == request.time || (ts is timestamp && ts <= request.time);
+		}
+
 		// Conversation document
 		match /conversations/{conversationId} {
 
 			// Create conversation only once with correct participants
 			allow create: if isAllowedUser() &&
-										 validParticipants(request.resource.data.participants) &&
-										 request.resource.data.createdAt == request.time;
+							 validParticipants(request.resource.data.participants) &&
+							 isValidCreatedAt(request.resource.data.createdAt);
 
 			// Read conversation details
 			allow read: if isAllowedUser();
@@ -38,11 +47,12 @@ service cloud.firestore {
 
 				// Allow sending a message (create only)
 				// A message must be created by an allowed user, senderId must match auth.uid,
-				// createdAt must be server time, and either `text` (string) OR `media_url` (string)
-				// must be provided. Receiver must be one of the participants.
+				// createdAt must be valid (serverTimestamp() or client time not in the future),
+				// and either `text` (string) OR `media_url` (string) must be provided.
+				// Receiver must be one of the participants.
 				allow create: if isAllowedUser() &&
-											 request.resource.data.senderId == request.auth.uid &&
-											 request.resource.data.createdAt == request.time &&
+								 request.resource.data.senderId == request.auth.uid &&
+								 isValidCreatedAt(request.resource.data.createdAt) &&
 											 (
 												 (request.resource.data.text is string && !(request.resource.data.media_url is string)) ||
 												 (request.resource.data.media_url is string && !(request.resource.data.text is string))
@@ -75,6 +85,25 @@ service cloud.firestore {
 
 			// No deletes allowed of user profiles from client
 			allow delete: if false;
+		}
+
+		// Custom display names: each user can set a custom name for their contacts
+		// Path: /customNames/{userId}/contacts/{contactId}
+		match /customNames/{userId}/contacts/{contactId} {
+			// Allow reading your own custom names for contacts
+			allow read: if request.auth != null && request.auth.uid == userId;
+
+			// Allow creating/updating a custom name only if you're the owner and contactId is valid
+			allow create, update: if request.auth != null && 
+								  request.auth.uid == userId &&
+								  isAllowedUser() &&
+								  (contactId == "DrTZw7Kv5MeGpdVbiU4lp6Kk6nF3" || contactId == "EJTfm5BLcuQjgiCUMsYTVu0BJXS2") &&
+								  request.resource.data.customName is string &&
+								  request.resource.data.customName.size() > 0 &&
+								  request.resource.data.customName.size() <= 50;
+
+			// Allow deleting your own custom names
+			allow delete: if request.auth != null && request.auth.uid == userId;
 		}
 	}
 }
